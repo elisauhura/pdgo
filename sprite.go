@@ -40,6 +40,17 @@ void pd_sprite_clearCollideRect(void* sprite);
 void pd_sprite_setCollisionsEnabled(void* sprite, int enabled);
 void pd_sprite_resetCollisionWorld(void);
 
+// Collision and query functions
+void* pd_sprite_moveWithCollisions(void* sprite, float goalX, float goalY, float* actualX, float* actualY, int* len);
+void* pd_sprite_checkCollisions(void* sprite, float goalX, float goalY, float* actualX, float* actualY, int* len);
+void* pd_sprite_querySpritesAtPoint(float x, float y, int* len);
+void* pd_sprite_querySpritesInRect(float x, float y, float w, float h, int* len);
+void* pd_sprite_querySpritesAlongLine(float x1, float y1, float x2, float y2, int* len);
+void* pd_sprite_querySpriteInfoAlongLine(float x1, float y1, float x2, float y2, int* len);
+void* pd_sprite_overlappingSprites(void* sprite, int* len);
+void* pd_sprite_allOverlappingSprites(int* len);
+void pd_sprite_freeArray(void* arr);
+
 // Sprite callbacks
 void pd_sprite_setUpdateFunction(void* sprite);
 void pd_sprite_setDrawFunction(void* sprite);
@@ -348,14 +359,34 @@ func (s *SpriteAPI) SetCollisionsEnabled(sprite *LCDSprite, enabled bool) {
 
 // MoveWithCollisions moves sprite with collision detection
 func (s *SpriteAPI) MoveWithCollisions(sprite *LCDSprite, goalX, goalY float32) ([]SpriteCollisionInfo, float32, float32) {
-	// TODO: implement with collision info
-	return nil, goalX, goalY
+	if sprite == nil || sprite.ptr == nil {
+		return nil, goalX, goalY
+	}
+	var actualX, actualY C.float
+	var len C.int
+	arr := C.pd_sprite_moveWithCollisions(sprite.ptr, C.float(goalX), C.float(goalY), &actualX, &actualY, &len)
+	if arr == nil || len == 0 {
+		return nil, float32(actualX), float32(actualY)
+	}
+	infos := parseCollisionInfo(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return infos, float32(actualX), float32(actualY)
 }
 
 // CheckCollisions checks for collisions without moving
 func (s *SpriteAPI) CheckCollisions(sprite *LCDSprite, goalX, goalY float32) ([]SpriteCollisionInfo, float32, float32) {
-	// TODO: implement with collision info
-	return nil, goalX, goalY
+	if sprite == nil || sprite.ptr == nil {
+		return nil, goalX, goalY
+	}
+	var actualX, actualY C.float
+	var len C.int
+	arr := C.pd_sprite_checkCollisions(sprite.ptr, C.float(goalX), C.float(goalY), &actualX, &actualY, &len)
+	if arr == nil || len == 0 {
+		return nil, float32(actualX), float32(actualY)
+	}
+	infos := parseCollisionInfo(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return infos, float32(actualX), float32(actualY)
 }
 
 // ============== Global Functions ==============
@@ -384,30 +415,75 @@ func (s *SpriteAPI) ResetCollisionWorld() {
 	C.pd_sprite_resetCollisionWorld()
 }
 
-// ============== Queries (stubs) ==============
+// ============== Queries ==============
 
 // QuerySpritesAtPoint returns sprites at a point
 func (s *SpriteAPI) QuerySpritesAtPoint(x, y float32) []*LCDSprite {
-	// TODO: implement
-	return nil
+	var len C.int
+	arr := C.pd_sprite_querySpritesAtPoint(C.float(x), C.float(y), &len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	sprites := parseSpriteArray(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return sprites
 }
 
 // QuerySpritesInRect returns sprites in a rectangle
 func (s *SpriteAPI) QuerySpritesInRect(x, y, w, h float32) []*LCDSprite {
-	// TODO: implement
-	return nil
+	var len C.int
+	arr := C.pd_sprite_querySpritesInRect(C.float(x), C.float(y), C.float(w), C.float(h), &len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	sprites := parseSpriteArray(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return sprites
 }
 
 // QuerySpritesAlongLine returns sprites along a line
 func (s *SpriteAPI) QuerySpritesAlongLine(x1, y1, x2, y2 float32) []*LCDSprite {
-	// TODO: implement
-	return nil
+	var len C.int
+	arr := C.pd_sprite_querySpritesAlongLine(C.float(x1), C.float(y1), C.float(x2), C.float(y2), &len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	sprites := parseSpriteArray(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return sprites
+}
+
+// QuerySpriteInfoAlongLine returns sprite query info along a line
+func (s *SpriteAPI) QuerySpriteInfoAlongLine(x1, y1, x2, y2 float32) []SpriteQueryInfo {
+	var len C.int
+	arr := C.pd_sprite_querySpriteInfoAlongLine(C.float(x1), C.float(y1), C.float(x2), C.float(y2), &len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	infos := parseSpriteQueryInfo(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return infos
 }
 
 // AllOverlappingSprites returns all overlapping sprites
 func (s *SpriteAPI) AllOverlappingSprites() []*LCDSprite {
-	// TODO: implement
-	return nil
+	var len C.int
+	arr := C.pd_sprite_allOverlappingSprites(&len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	sprites := parseSpriteArray(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return sprites
+}
+
+// SpriteQueryInfo contains information about a sprite intersection along a line
+type SpriteQueryInfo struct {
+	Sprite     *LCDSprite
+	Ti1        float32
+	Ti2        float32
+	EntryPoint CollisionPoint
+	ExitPoint  CollisionPoint
 }
 
 // SpriteCollisionInfo for collision results
@@ -422,4 +498,104 @@ type SpriteCollisionInfo struct {
 	Touch        CollisionPoint
 	SpriteRect   PDRect
 	OtherRect    PDRect
+}
+
+// parseCollisionInfo parses C SpriteCollisionInfo array into Go slice
+func parseCollisionInfo(arr unsafe.Pointer, len int) []SpriteCollisionInfo {
+	if arr == nil || len == 0 {
+		return nil
+	}
+
+	// C struct layout for SpriteCollisionInfo:
+	// sprite (8), other (8), responseType (4), overlaps (1), padding (3),
+	// ti (4), move (8), normal (8), touch (8), spriteRect (16), otherRect (16)
+	type cCollisionInfo struct {
+		sprite       unsafe.Pointer
+		other        unsafe.Pointer
+		responseType C.int
+		overlaps     C.uint8_t
+		_            [3]byte // padding
+		ti           C.float
+		moveX        C.float
+		moveY        C.float
+		normalX      C.int
+		normalY      C.int
+		touchX       C.float
+		touchY       C.float
+		spriteRectX  C.float
+		spriteRectY  C.float
+		spriteRectW  C.float
+		spriteRectH  C.float
+		otherRectX   C.float
+		otherRectY   C.float
+		otherRectW   C.float
+		otherRectH   C.float
+	}
+
+	cArr := (*[1024]cCollisionInfo)(arr)[:len]
+	infos := make([]SpriteCollisionInfo, len)
+
+	for i, c := range cArr {
+		infos[i] = SpriteCollisionInfo{
+			Sprite:       &LCDSprite{ptr: c.sprite},
+			Other:        &LCDSprite{ptr: c.other},
+			ResponseType: SpriteCollisionResponseType(c.responseType),
+			Overlaps:     c.overlaps != 0,
+			Ti:           float32(c.ti),
+			Move:         CollisionPoint{X: float32(c.moveX), Y: float32(c.moveY)},
+			Normal:       CollisionVector{X: int(c.normalX), Y: int(c.normalY)},
+			Touch:        CollisionPoint{X: float32(c.touchX), Y: float32(c.touchY)},
+			SpriteRect:   PDRect{X: float32(c.spriteRectX), Y: float32(c.spriteRectY), Width: float32(c.spriteRectW), Height: float32(c.spriteRectH)},
+			OtherRect:    PDRect{X: float32(c.otherRectX), Y: float32(c.otherRectY), Width: float32(c.otherRectW), Height: float32(c.otherRectH)},
+		}
+	}
+	return infos
+}
+
+// parseSpriteQueryInfo parses C SpriteQueryInfo array into Go slice
+func parseSpriteQueryInfo(arr unsafe.Pointer, len int) []SpriteQueryInfo {
+	if arr == nil || len == 0 {
+		return nil
+	}
+
+	// C struct layout for SpriteQueryInfo:
+	// sprite (8), ti1 (4), ti2 (4), entryPoint (8), exitPoint (8)
+	type cQueryInfo struct {
+		sprite unsafe.Pointer
+		ti1    C.float
+		ti2    C.float
+		entryX C.float
+		entryY C.float
+		exitX  C.float
+		exitY  C.float
+	}
+
+	cArr := (*[1024]cQueryInfo)(arr)[:len]
+	infos := make([]SpriteQueryInfo, len)
+
+	for i, c := range cArr {
+		infos[i] = SpriteQueryInfo{
+			Sprite:     &LCDSprite{ptr: c.sprite},
+			Ti1:        float32(c.ti1),
+			Ti2:        float32(c.ti2),
+			EntryPoint: CollisionPoint{X: float32(c.entryX), Y: float32(c.entryY)},
+			ExitPoint:  CollisionPoint{X: float32(c.exitX), Y: float32(c.exitY)},
+		}
+	}
+	return infos
+}
+
+// parseSpriteArray parses C LCDSprite* array into Go slice
+func parseSpriteArray(arr unsafe.Pointer, len int) []*LCDSprite {
+	if arr == nil || len == 0 {
+		return nil
+	}
+
+	ptrArr := (*[1024]unsafe.Pointer)(arr)[:len]
+	sprites := make([]*LCDSprite, len)
+
+	for i, ptr := range ptrArr {
+		sprites[i] = &LCDSprite{ptr: ptr}
+	}
+	return sprites
 }

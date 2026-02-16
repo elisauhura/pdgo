@@ -18,6 +18,7 @@ EXAMPLES=(
     "go_logo"
     "hello_world"
     "tilemap"
+    "sprite_collisions"
 )
 
 FAILED=()

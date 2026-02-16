@@ -511,6 +511,8 @@ chmod +x examples/*/build.sh
 
 Each example includes a `build.sh` script that runs `pdgoc` with all necessary flags.
 
+**Sprite Collisions** [examples/sprite_collisions](examples/sprite_collisions)
+
 **Tilemap** -- [examples/tilemap](examples/tilemap)
 
 **JSON High and Low Level Encoding and Decoding** -- [examples/json](examples/json) | [examples/json_lowlevel](examples/json_lowlevel)
@@ -538,7 +540,7 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
     - [x] Life
     - [x] Tilemap
     - [x] Sprite Game
-    - [ ] Sprite Collisions
+    - [x] Sprite Collisions
     - [ ] Particles
     - [ ] Networking
     - [x] JSON

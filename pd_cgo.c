@@ -885,6 +885,52 @@ void pd_sprite_resetCollisionWorld(void) {
     if (pd) pd->sprite->resetCollisionWorld();
 }
 
+// Collision functions - caller is responsible for freeing returned arrays
+void* pd_sprite_moveWithCollisions(void* sprite, float goalX, float goalY, float* actualX, float* actualY, int* len) {
+    if (pd) return pd->sprite->moveWithCollisions(sprite, goalX, goalY, actualX, actualY, len);
+    return NULL;
+}
+
+void* pd_sprite_checkCollisions(void* sprite, float goalX, float goalY, float* actualX, float* actualY, int* len) {
+    if (pd) return pd->sprite->checkCollisions(sprite, goalX, goalY, actualX, actualY, len);
+    return NULL;
+}
+
+void* pd_sprite_querySpritesAtPoint(float x, float y, int* len) {
+    if (pd) return pd->sprite->querySpritesAtPoint(x, y, len);
+    return NULL;
+}
+
+void* pd_sprite_querySpritesInRect(float x, float y, float w, float h, int* len) {
+    if (pd) return pd->sprite->querySpritesInRect(x, y, w, h, len);
+    return NULL;
+}
+
+void* pd_sprite_querySpritesAlongLine(float x1, float y1, float x2, float y2, int* len) {
+    if (pd) return pd->sprite->querySpritesAlongLine(x1, y1, x2, y2, len);
+    return NULL;
+}
+
+void* pd_sprite_querySpriteInfoAlongLine(float x1, float y1, float x2, float y2, int* len) {
+    if (pd) return pd->sprite->querySpriteInfoAlongLine(x1, y1, x2, y2, len);
+    return NULL;
+}
+
+void* pd_sprite_overlappingSprites(void* sprite, int* len) {
+    if (pd) return pd->sprite->overlappingSprites(sprite, len);
+    return NULL;
+}
+
+void* pd_sprite_allOverlappingSprites(int* len) {
+    if (pd) return pd->sprite->allOverlappingSprites(len);
+    return NULL;
+}
+
+// Helper to free collision/query arrays
+void pd_sprite_freeArray(void* arr) {
+    if (pd && arr) pd->system->realloc(arr, 0);
+}
+
 // ============== Lua API ==============
 
 int pd_lua_getArgCount(void) {

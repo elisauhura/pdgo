@@ -133,6 +133,6 @@ type CollisionPoint struct {
 
 // CollisionVector represents a vector in collision detection
 type CollisionVector struct {
-	X float32
-	Y float32
+	X int
+	Y int
 }
