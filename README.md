@@ -541,7 +541,7 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
     - [x] Tilemap
     - [x] Sprite Game
     - [x] Sprite Collisions
-    - [ ] Particles
+    - [x] Particles
     - [ ] Networking
     - [x] JSON
     - [ ] Exposure

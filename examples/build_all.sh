@@ -19,6 +19,7 @@ EXAMPLES=(
     "hello_world"
     "tilemap"
     "sprite_collisions"
+    "particles"
 )
 
 FAILED=()
