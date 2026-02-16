@@ -511,7 +511,7 @@ chmod +x examples/*/build.sh
 
 Each example includes a `build.sh` script that runs `pdgoc` with all necessary flags.
 
-**Tilemap** -- [examples/timemap](examples/tilemap)
+**Tilemap** -- [examples/tilemap](examples/tilemap)
 
 **JSON High and Low Level Encoding and Decoding** -- [examples/json](examples/json) | [examples/json_lowlevel](examples/json_lowlevel)
 
