@@ -20,6 +20,7 @@ EXAMPLES=(
     "tilemap"
     "sprite_collisions"
     "particles"
+    "exposure"
 )
 
 FAILED=()

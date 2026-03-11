@@ -520,6 +520,8 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
 
 **Particles** -- [examples/particles](examples/particles)
 
+**Exposure** -- [examples/exposure](examples/exposure)
+
 **Sprite Collisions** -- [examples/sprite_collisions](examples/sprite_collisions)
 
 **Tilemap** -- [examples/tilemap](examples/tilemap)
@@ -553,7 +555,7 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
     - [x] Particles
     - [ ] Networking
     - [x] JSON
-    - [ ] Exposure
+    - [x] Exposure
     - [x] Bach.mid
     - [ ] Array
     - [x] 3D Library

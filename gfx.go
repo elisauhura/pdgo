@@ -42,6 +42,11 @@ void pd_gfx_drawScaledBitmap(void* bitmap, int x, int y, float xscale, float ysc
 void pd_gfx_drawRotatedBitmap(void* bitmap, int x, int y, float rotation, float cx, float cy, float xscale, float yscale);
 void pd_gfx_getBitmapData(void* bitmap, int* w, int* h, int* rowbytes, uint8_t** mask, uint8_t** data);
 void pd_gfx_clearBitmap(void* bitmap, uint32_t bgcolor);
+void* pd_gfx_rotatedBitmap(void* bitmap, float rotation, float xscale, float yscale);
+void* pd_gfx_getBitmapMask(void* bitmap);
+int pd_gfx_setBitmapMask(void* bitmap, void* mask);
+void pd_gfx_setStencilImage(void* stencil, int tile);
+void pd_gfx_setColorToPattern(void* color, void* bitmap, int x, int y);
 
 // BitmapTable
 void* pd_gfx_newBitmapTable(int count, int w, int h);
@@ -316,6 +321,62 @@ func (g *Graphics) ClearBitmap(bitmap *LCDBitmap, bgcolor LCDColor) {
 	if bitmap != nil && bitmap.ptr != nil {
 		C.pd_gfx_clearBitmap(bitmap.ptr, C.uint32_t(bgcolor))
 	}
+}
+
+// RotatedBitmap creates a rotated copy of a bitmap
+func (g *Graphics) RotatedBitmap(bitmap *LCDBitmap, rotation, xscale, yscale float32) *LCDBitmap {
+	if bitmap != nil && bitmap.ptr != nil {
+		ptr := C.pd_gfx_rotatedBitmap(bitmap.ptr, C.float(rotation), C.float(xscale), C.float(yscale))
+		if ptr != nil {
+			return &LCDBitmap{ptr: ptr}
+		}
+	}
+	return nil
+}
+
+// GetBitmapMask returns the mask bitmap for the given bitmap
+func (g *Graphics) GetBitmapMask(bitmap *LCDBitmap) *LCDBitmap {
+	if bitmap != nil && bitmap.ptr != nil {
+		ptr := C.pd_gfx_getBitmapMask(bitmap.ptr)
+		if ptr != nil {
+			return &LCDBitmap{ptr: ptr}
+		}
+	}
+	return nil
+}
+
+// SetBitmapMask sets the mask bitmap for the given bitmap
+func (g *Graphics) SetBitmapMask(bitmap, mask *LCDBitmap) bool {
+	if bitmap != nil && bitmap.ptr != nil {
+		var maskPtr unsafe.Pointer
+		if mask != nil {
+			maskPtr = mask.ptr
+		}
+		return C.pd_gfx_setBitmapMask(bitmap.ptr, maskPtr) != 0
+	}
+	return false
+}
+
+// SetStencilImage sets a stencil image for drawing
+func (g *Graphics) SetStencilImage(stencil *LCDBitmap, tile bool) {
+	if stencil != nil && stencil.ptr != nil {
+		var tileFlag C.int
+		if tile {
+			tileFlag = 1
+		}
+		C.pd_gfx_setStencilImage(stencil.ptr, tileFlag)
+	}
+}
+
+// SetColorToPattern sets up a pattern color for drawing
+func (g *Graphics) SetColorToPattern(bitmap *LCDBitmap, x, y int) LCDColor {
+	var color C.uint32_t
+	var bitmapPtr unsafe.Pointer
+	if bitmap != nil {
+		bitmapPtr = bitmap.ptr
+	}
+	C.pd_gfx_setColorToPattern(unsafe.Pointer(&color), bitmapPtr, C.int(x), C.int(y))
+	return LCDColor(color)
 }
 
 // ============== BitmapTable ==============

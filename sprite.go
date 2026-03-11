@@ -520,6 +520,21 @@ func (s *SpriteAPI) AllOverlappingSprites() []*LCDSprite {
 	return sprites
 }
 
+// OverlappingSprites returns sprites overlapping the given sprite
+func (s *SpriteAPI) OverlappingSprites(sprite *LCDSprite) []*LCDSprite {
+	if sprite == nil || sprite.ptr == nil {
+		return nil
+	}
+	var len C.int
+	arr := C.pd_sprite_overlappingSprites(sprite.ptr, &len)
+	if arr == nil || len == 0 {
+		return nil
+	}
+	sprites := parseSpriteArray(arr, int(len))
+	C.pd_sprite_freeArray(arr)
+	return sprites
+}
+
 // SpriteQueryInfo contains information about a sprite intersection along a line
 type SpriteQueryInfo struct {
 	Sprite     *LCDSprite

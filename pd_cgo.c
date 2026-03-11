@@ -307,6 +307,29 @@ void pd_gfx_clearBitmap(void* bitmap, uint32_t bgcolor) {
     if (pd) pd->graphics->clearBitmap(bitmap, bgcolor);
 }
 
+void* pd_gfx_rotatedBitmap(void* bitmap, float rotation, float xscale, float yscale) {
+    if (pd) return pd->graphics->rotatedBitmap(bitmap, rotation, xscale, yscale, NULL);
+    return NULL;
+}
+
+void* pd_gfx_getBitmapMask(void* bitmap) {
+    if (pd) return pd->graphics->getBitmapMask(bitmap);
+    return NULL;
+}
+
+int pd_gfx_setBitmapMask(void* bitmap, void* mask) {
+    if (pd) return pd->graphics->setBitmapMask(bitmap, mask);
+    return 0;
+}
+
+void pd_gfx_setStencilImage(void* stencil, int tile) {
+    if (pd) pd->graphics->setStencilImage(stencil, tile);
+}
+
+void pd_gfx_setColorToPattern(void* color, void* bitmap, int x, int y) {
+    if (pd) pd->graphics->setColorToPattern((LCDColor*)color, bitmap, x, y);
+}
+
 // BitmapTable
 void* pd_gfx_newBitmapTable(int count, int w, int h) {
     if (pd) return pd->graphics->newBitmapTable(count, w, h);
