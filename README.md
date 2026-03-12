@@ -12,6 +12,7 @@
 - [API Bindings](#api-bindings)
 - [Examples](#examples)
 - [Roadmap](#roadmap)
+- [Contribution](#contribution)
 - [Community](#community)
 - [Attribution](#attribution)
 - [License](#license)
@@ -21,13 +22,6 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/playdate-go/pdgo/main/install.sh | bash
-```
-
-```bash
-# test 
-chmod +x examples/build_all.sh 
-chmod +x examples/*/build.sh
-./examples/build_all.sh
 ```
 
 This installs **everything** you need:
@@ -579,6 +573,47 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
 - [X] Write documentation for API bindings
 - [ ] Create unit tests for `pdgoc` and API bindings
 - [ ] Add support for Windows OS
+
+## Contribution
+```bash
+# 1. Fork the repo on GitHub first (via the web UI), then:
+
+git clone https://github.com/<your-github-username>/pdgo.git
+cd pdgo
+
+# 2. Make sure you are on the main branch
+git checkout main
+git pull origin main
+
+# 3. Create a feature branch based on main
+git checkout -b my_feature
+
+# 4. Make your changes, then stage only what you need
+git add path/to/changed_file.go   # or several files
+
+# 5. Commit with a meaningful message
+git commit -m "Describe what this change does"
+
+# 6. Push your branch to your fork
+git push origin my_feature
+
+#Go to your fork on GitHub, you’ll see a banner offering to “Compare & pull request”.
+
+# Open a pull request from my_feature in your fork to playdate-go/pdgo’s main (or whichever target branch you use).
+```
+
+Verify unit tests pass 
+```bash
+cd cmd/pdgoc
+go test ./config/... ./pdxinfo/... -v
+```
+
+Verify all examples compile
+```bash
+chmod +x examples/build_all.sh 
+chmod +x examples/*/build.sh
+./examples/build_all.sh
+```
 
 ## Community
 Using these links and places, you can discuss the PdGo project with each other:
