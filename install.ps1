@@ -29,7 +29,7 @@ Write-Host ""
 # ============================================================================
 Write-Host "[1/4] Checking dependencies..." -ForegroundColor Yellow
 
-$dependencies = @("go", "git")
+$dependencies = @("go", "git", "mingw")
 $missing = @()
 
 # Make sure Scoop shims are in the current session's PATH just in case 
