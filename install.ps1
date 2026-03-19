@@ -346,6 +346,10 @@ func initHeap() {}
 
 func setHeapEnd(newHeapEnd uintptr) {}
 '@ | Set-Content (Join-Path $runtimeDir "gc_playdate.go") -Encoding UTF8
+
+    Write-Host "  Installing Go 1.25.8 as required by TinyGo:"
+    Invoke-Expression "scoop install go@1.25.8"
+
     Write-Host "  TinyGo with Playdate support ready!" -ForegroundColor Green
 }
 

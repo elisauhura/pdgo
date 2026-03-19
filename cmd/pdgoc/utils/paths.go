@@ -74,3 +74,25 @@ func GetLsExec() string {
 
 	return "ls"
 }
+
+func GetTinyGoPath() string {
+	if runtime.GOOS == "windows" {
+		return path.Join(GetTinyGoDir(), "bin/tinygo")
+	}
+	return path.Join(GetTinyGoDir(), "build/tinygo")
+}
+
+func GetTinyGoDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return path.Join(home, "tinygo-playdate")
+}
+
+func GetShellExecutableName() string {
+	if runtime.GOOS == "windows" {
+		return "powershell.exe"
+	}
+	return "bash"
+}

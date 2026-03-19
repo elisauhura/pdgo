@@ -30,6 +30,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// ensure CGO is enabled
+	_ = os.Setenv("CGO_ENABLED", "1")
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("failed to get current working directory: %s", err)
