@@ -29,7 +29,8 @@ Write-Host ""
 # ============================================================================
 Write-Host "[1/4] Checking dependencies..." -ForegroundColor Yellow
 
-$dependencies = @("go", "git", "mingw")
+$dependencies = @("go", "git", "mingw", "gcc-arm-none-eabi")
+$testCommmands = @("go", "git", "mingw32-make", "arm-none-eabi-gcc")
 $missing = @()
 
 # Make sure Scoop shims are in the current session's PATH just in case 
@@ -39,10 +40,12 @@ if ((Test-Path $scoopShims) -and ($env:PATH -notmatch [regex]::Escape($scoopShim
     $env:PATH = "$scoopShims;$env:PATH"
 }
 
-foreach ($dep in $dependencies) {
-    if (-not (Get-Command $dep -ErrorAction SilentlyContinue)) {
-        $missing += $dep
+$index = 0
+foreach ($cmd in $testCommmands) {
+    if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+        $missing += $dependencies[$index]
     }
+    $index++
 }
 
 if ($missing.Count -gt 0) {
@@ -71,6 +74,7 @@ if ($missing.Count -gt 0) {
         Write-Host "`nInstalling dependencies via Scoop..." -ForegroundColor Cyan
         # Install missing dependencies (Scoop handles arrays nicely, but we'll do it cleanly)
         $missingArgs = $missing -join " "
+        Invoke-Expression "scoop bucket add extras"
         Invoke-Expression "scoop install $missingArgs"
 
         # Refresh environment variables to pick up any new paths set by Scoop
@@ -81,8 +85,13 @@ if ($missing.Count -gt 0) {
         
         # Verify installation succeeded
         $stillMissing = @()
+        $installedList = (scoop list)
         foreach ($dep in $missing) {
-            if (-not (Get-Command $dep -ErrorAction SilentlyContinue)) {
+            # The regex "^\b$packageName\b" ensures we match the exact package name at the start of a line
+            # -Quiet makes Select-String return a simple $true or $false boolean
+            $isInstalled = [bool]($installedList | Select-String -Pattern "^\b$dep\b" -Quiet)
+
+            if (-not $isInstalled) {
                 $stillMissing += $dep
             }
         }
