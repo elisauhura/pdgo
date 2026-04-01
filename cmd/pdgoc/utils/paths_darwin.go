@@ -9,7 +9,7 @@ import (
 func GetPlayDateSDKFallbackPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("failed to determine fallback PlayDateSDK path: %w", err)
+		return "", fmt.Errorf("failed to determine fallback PlaydateSDK path: %w", err)
 	}
 
 	return path.Join(homeDir, "Developer/PlaydateSDK"), nil
