@@ -25,7 +25,7 @@ func main() {
 	log.Printf("date: %s", Date)
 
 	if runtime.GOOS == "windows" {
-		log.Print("windows support is experimental, features may not work as expected")
+		log.Print("windows support is experimental, only -run and -sim flags are supported")
 	}
 
 	sdkPath, err := utils.GetPlayDateSDKPath()
