@@ -40,11 +40,9 @@ func (p *Processor) processSim() error {
 		return err
 	}
 
-	if utils.GetLs() != "" {
-		log.Printf("'%s' content:", p.cfg.System.OutputPath)
-		if err = p.execCmd(utils.GetLs(), []string{p.cfg.System.OutputPath}); err != nil {
-			return err
-		}
+	log.Printf("'%s' content:", p.cfg.System.OutputPath)
+	if err = p.execCmd(utils.GetLs(p.cfg.System.OutputPath)); err != nil {
+		return err
 	}
 
 	log.Println("Playdate Application has been successfully built!")

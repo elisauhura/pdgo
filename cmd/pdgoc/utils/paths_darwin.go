@@ -32,6 +32,6 @@ func GetLibrary(path string) string {
 	return fmt.Sprintf("%s.dylib", path)
 }
 
-func GetLs() string {
-	return "ls"
+func GetLs(path string) (string, []string) {
+	return "ls", []string{path}
 }

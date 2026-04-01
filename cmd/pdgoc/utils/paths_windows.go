@@ -32,6 +32,6 @@ func GetLibrary(path string) string {
 	return fmt.Sprintf("%s.dll", path)
 }
 
-func GetLs() string {
-	return ""
+func GetLs(path string) (string, []string) {
+	return "cmd", []string{"/c", "dir", "/b", "/w", path}
 }
