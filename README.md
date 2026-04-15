@@ -84,7 +84,7 @@ JOBS=8 curl -fsSL https://raw.githubusercontent.com/playdate-go/pdgo/main/instal
    - `playdate.json` - target config (Cortex-M7, custom GC, no scheduler)
    - `playdate.ld` - linker script (memory layout, entry point)
    - `runtime_playdate.go` - platform runtime (time, console output via SDK)
-   - `gc_playdate.go` - custom GC that delegates to Playdate SDK's realloc
+   - `gc_playdate.go` - leaking GC type (heap allocations never reclaimed unless manually freed)
 5. **Builds TinyGo** - compiles with Playdate support
 6. **Configures PATH** - adds `pdgoc` and `tinygo` to your shell
 
@@ -218,8 +218,16 @@ func main() {}
 For Playdate hardware `pdgoc` uses a custom [TinyGo](https://tinygo.org/) build with full Playdate hardware support instead of standard Go build tools.
 
 **Custom GC**:  
-Custom TinyGo build for Playdate achieves minimal binary sizes through custom Playdate GC:
-Instead of including traditional garbage collection logic (mark, sweep, write barriers), we delegate all allocations to the Playdate SDK's `realloc` function. This results in minimal GC wrapper code in the final binary. The Playdate OS already provides a robust allocator optimized for the hardware, and we simply use it!
+Custom TinyGo build for Playdate currently uses "leaking" GC type–heap allocations from both Go and the Playdate C API are never reclaimed unless you free them manually.
+
+This isn't the goal. We're building a conservative mark-and-sweep GC designed for Playdate's constraints:
+- Tracks Go-level objects conservatively, integrated with the SDK allocator.
+- Uses a finalizers pattern to automatically free C-level API objects (bitmaps, sprites, sounds) when they become unreachable – managing both heaps in one system.
+- Lightweight stop-the-world pauses, lighter than Go's stock tri-color GC, tuned for a constrained system.
+
+The priority is making it work reliably. Concrete specifications will follow. Once stable, the headache shifts from manual frees to what every Go developer already handles on constrained systems: keeping heap churn low. A much better problem to have.
+
+Follow this link to the progress:
 
 <details>
 <summary>click to see: gc_playdate.go</summary>
@@ -242,7 +250,7 @@ func alloc(size uintptr, layout unsafe.Pointer) unsafe.Pointer {
 }
 
 func GC() {
-    // No-op - Playdate SDK manages memory
+    // No-op - leaking GC, manual free required
 }
 
 func SetFinalizer(obj interface{}, finalizer interface{}) {
@@ -404,7 +412,7 @@ Go Source -> TinyGo Frontend -> LLVM IR -> LLVM Backend -> ARM Thumb-2 ELF
 ```
 
 Summary: Standard Go is designed for desktop/server environments, full operating systems, abundant memory (GB).
-Playdate requires: bare-metal ARM Cortex-M7, no operating system, tiny runtime, SDK-managed memory.
+Playdate requires: bare-metal ARM Cortex-M7, no operating system, tiny runtime, and manual memory management (conservative mark-and-sweep GC planned).
 
 TinyGo bridges this gap by reimplementing Go compilation targeting embedded systems with LLVM backend. Our custom TinyGo build supports CGO on bare-metal Playdate hardware through a unified C wrapper layer (`pd_cgo.c`).
 
@@ -572,7 +580,7 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
 - [ ] Make sure C interoperability works
 - [X] Write documentation for API bindings
 - [ ] Investigate: concurrency: goroutines/scheduler support for single-threaded CPU
-- [ ] Investigate: GC support: (does it make sense for a very constrained embedded system like Playdate?)
+- [ ] Implement conservative mark-and-sweep GC for Playdate's constraints
 - [ ] Create unit tests for `pdgoc` and API bindings
 - [ ] Add support for Windows OS
 
