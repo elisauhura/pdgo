@@ -1,5 +1,5 @@
 
-<img src="assets/gopher-on-playdate.jpg" alt="Gopher on Playdate" width="300"  >
+<img src="assets/pdgo-logo.png" alt="Logo" width="300"  >
 
 ## Menu
 
