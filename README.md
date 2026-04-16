@@ -1,5 +1,5 @@
 
-<img src="assets/pdgo-logo.png" alt="Logo" width="300"  >
+<img src="assets/pdgo-logo.png" alt="Logo" width="270"  >
 
 ## Menu
 
