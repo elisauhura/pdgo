@@ -96,15 +96,46 @@ echo -e "${GREEN}All dependencies OK${NC}"
 echo ""
 echo -e "${YELLOW}[2/4] Installing pdgoc...${NC}"
 
-go install github.com/playdate-go/pdgo/cmd/pdgoc@latest
+# Create a temporary directory for building pdgoc
+BUILD_DIR=$(mktemp -d)
+trap "rm -rf $BUILD_DIR" EXIT
+
+echo "  Downloading pdgo source..."
+
+# Try to get version info from GitHub API
+GITHUB_API="https://api.github.com/repos/playdate-go/pdgo"
+LATEST_TAG=$(curl -s "${GITHUB_API}/releases/latest" | grep '"tag_name"' | sed -E 's/.*"tag_name": ?"([^"]+)".*/\1/' 2>/dev/null || echo "")
+LATEST_COMMIT=$(curl -s "${GITHUB_API}/commits/main" | grep '"sha"' | head -1 | sed -E 's/.*"sha": ?"([^"]+)".*/\1/' 2>/dev/null | cut -c1-7 || echo "unknown")
+
+VERSION=${LATEST_TAG:-"latest"}
+COMMIT=${LATEST_COMMIT:-"unknown"}
+DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+# Download and extract source
+if [ -n "$LATEST_TAG" ]; then
+    echo "  Downloading release $LATEST_TAG..."
+    curl -sL "https://github.com/playdate-go/pdgo/archive/refs/tags/${LATEST_TAG}.tar.gz" | tar -xz -C "$BUILD_DIR"
+    SOURCE_DIR="$BUILD_DIR/pdgo-${LATEST_TAG#v}"
+else
+    echo "  Downloading latest source..."
+    curl -sL "https://github.com/playdate-go/pdgo/archive/refs/heads/main.tar.gz" | tar -xz -C "$BUILD_DIR"
+    SOURCE_DIR="$BUILD_DIR/pdgo-main"
+fi
+
+cd "$SOURCE_DIR/cmd/pdgoc"
+
+echo "  Building pdgoc..."
+echo "    Version: $VERSION"
+echo "    Commit:  $COMMIT"
+echo "    Date:    $DATE"
 
 GOBIN="${GOBIN:-$(go env GOPATH)/bin}"
-if [ -f "$GOBIN/pdgoc" ]; then
-    echo -e "  pdgoc installed at: ${GREEN}$GOBIN/pdgoc${NC}"
-else
-    echo -e "${RED}Failed to install pdgoc${NC}"
-    exit 1
-fi
+mkdir -p "$GOBIN"
+
+# Build with ldflags to inject version information
+go build -ldflags="-X 'main.Version=$VERSION' -X 'main.Commit=$COMMIT' -X 'main.Date=$DATE'" -o "$GOBIN/pdgoc" .
+
+echo -e "  pdgoc installed at: ${GREEN}$GOBIN/pdgoc${NC}"
 
 # Check if GOBIN is in PATH
 if ! command -v pdgoc &>/dev/null; then
