@@ -12,6 +12,7 @@
 - [Known Issues](#known-issues)
 - [API Bindings](#api-bindings)
 - [Examples](#examples)
+- [A Tour Of Go](#a-tour-of-go)
 - [Roadmap](#roadmap)
 - [Contribution](#contribution)
 - [Community](#community)
@@ -568,37 +569,66 @@ https://pkg.go.dev/github.com/playdate-go/pdgo#section-documentation
 To build all examples please do this:
 ```bash
 # in project repo root
-chmod +x examples/build_all.sh 
-chmod +x examples/*/build.sh
-./examples/build_all.sh
+chmod +x game_examples/build_all.sh 
+chmod +x game_examples/*/build.sh
+./game_examples/build_all.sh
 ```
 
 Each example includes a `build.sh` script that runs `pdgoc` with all necessary flags.
 
-**Particles** -- [examples/particles](examples/particles)
+**Particles** -- [game_examples/particles](game_examples/particles)
 
-**Exposure** -- [examples/exposure](examples/exposure)
+**Exposure** -- [game_examples/exposure](game_examples/exposure)
 
-**Sprite Collisions** -- [examples/sprite_collisions](examples/sprite_collisions)
+**Sprite Collisions** -- [game_examples/sprite_collisions](game_examples/sprite_collisions)
 
-**Tilemap** -- [examples/tilemap](examples/tilemap)
+**Tilemap** -- [game_examples/tilemap](game_examplestilemap)
 
-**JSON High and Low Level Encoding and Decoding** -- [examples/json](examples/json) | [examples/json_lowlevel](examples/json_lowlevel)
+**JSON High and Low Level Encoding and Decoding** -- [game_examples/json](game_examples/json) | [examples/json_lowlevel](examples/json_lowlevel)
 
-**Bach MIDI** -- [examples/bach_midi](examples/bach_midi)
+**Bach MIDI** -- [game_examples/bach_midi](game_examples/bach_midi)
 
-**3D Library** -- [examples/3d_library](examples/3d_library)
+**3D Library** -- [game_examples/3d_library](game_examples/3d_library)
 
-**Sprite Game** -- [examples/spritegame](examples/spritegame)
+**Sprite Game** -- [game_examples/spritegame](game_examples/spritegame)
 
-**Conway's Game of Life** -- [examples/life](examples/life)
+**Conway's Game of Life** -- [game_examples/life](game_examples/life)
 
-**Bouncing Square** -- [examples/bouncing_square](examples/bouncing_square)
+**Bouncing Square** -- [game_examples/bouncing_square](game_examples/bouncing_square)
 
-**Go Logo** -- [examples/go_logo](examples/go_logo)
+**Go Logo** -- [game_examples/go_logo](game_examples/go_logo)
 
-**Hello World** -- [examples/hello_world](examples/hello_world)
+**Hello World** -- [game_examples/hello_world](game_examples/hello_world)
 
+
+## A Tour Of Go
+
+The official Go language tutorial — [A Tour of Go](https://go.dev/tour/) — has been adapted to run on Playdate with PdGo, out of the box, on both the Simulator and the device.
+
+If you are coming from C or Lua gamedev and want to learn Go, this is the fastest way to try every language feature hands-on: packages, functions, control flow, pointers, structs, arrays, slices, maps, closures, methods, interfaces, type assertions, generics, errors, and io.Reader — all running directly on Playdate hardware.
+
+All examples are located in the `tour_of_go/` directory. Each example is a self-contained PdGo project with its own `build.sh`.
+
+**Build all examples at once:**
+```bash
+cd tour_of_go
+chmod +x build_all.sh
+chmod +x */build.sh
+./build_all.sh
+```
+
+**Build a single example:**
+```bash
+cd tour_of_go/17_for
+chmod +x build.sh
+./build.sh
+```
+
+The examples cover Go fundamentals (01-26), pointers and structs (27-32), slices (33-41), maps (44-47), functions and closures (48-49), methods (50-57), interfaces (58-62), type assertions and switches (64-65), Stringer (66), errors (67), io.Reader (68), and generics (`generics_type_parameters`, `generics_generic_types`, `generics_all`).
+
+All examples are device-tested and avoid [known TinyGo ARM fmt issues](#known-issues-).
+
+---
 
 ## Roadmap
 
@@ -634,7 +664,7 @@ Each example includes a `build.sh` script that runs `pdgoc` with all necessary f
 - [ ] Make sure Lua interoperability works
 - [ ] Make sure C interoperability works
 - [X] Write documentation for API bindings
-- [ ] Add Go-Tour like code examples to demostrate language's syntax and semantic to newcomers  
+- [x] Add Go-Tour like code examples to demostrate language's syntax and semantic to newcomers  
 - [ ] Add different benchmarks to compare Go with C and Lua
 - [ ] Investigate: concurrency: goroutines/scheduler support for single-threaded CPU
 - [ ] Implement conservative mark-and-sweep GC for Playdate's constraints
@@ -677,9 +707,9 @@ go test ./config/... ./pdxinfo/... -v
 
 Verify all examples compile
 ```bash
-chmod +x examples/build_all.sh 
-chmod +x examples/*/build.sh
-./examples/build_all.sh
+chmod +x game_examples/build_all.sh 
+chmod +x game_examples/*/build.sh
+./game_examples/build_all.sh
 ```
 
 ## Community
